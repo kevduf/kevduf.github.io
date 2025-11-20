@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>goonland</title>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Comic Neue', cursive;
+    background: linear-gradient(120deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: #fff;
+    text-align: center;
+    padding: 50px;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  h1 {
+    font-size: 4em;
+    text-shadow: 2px 2px #000;
+  }
+
+  p {
+    font-size: 1.5em;
+    margin-top: -10px;
+  }
+
+  .btn {
+    display: inline-block;
+    margin: 20px;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    color: #fff;
+    background: #ff6f61;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: transform 0.2s;
+    border:none;
+  }
+
+  .btn:hover {
+    transform: scale(1.2) rotate(5deg);
+  }
+
+  .dvd-box {
+    margin: 40px auto;
+    width: 800px;
+    height: 400px;
+    background: rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dvd-logo {
+    position: absolute;
+    width: 80px; 
+    height: 80px;
+  }
+
+  #drawing {
+    margin-top: 40px;
+    cursor: crosshair;
+    background: rgba(0,0,0,0.1);
+  }
+
+  #draw-buttons {
+    margin-top: 10px;
+  }
+
+  #messageInput {
+    margin-top: 20px;
+    padding: 10px;
+    width: 300px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Comic Neue', cursive;
+    font-size: 1em;
+    border: none;
+    outline: none;
+  }
+
+</style>
+</head>
+<body>
+  <h1>welcome to goonland</h1>
+  <p>what is blud doing ->🤪?</p>
+  <div>
+    <a href="https://www.roblox.com/users/524708189/profile" class="btn" target="_blank">my roblox</a>
+    <a href="https://guns.lol/kevduf" class="btn" target="_blank">my guns.lol</a>
+  </div>
+
+  <div class="dvd-box" id="dvd-box">
+    <img src="https://media.discordapp.net/attachments/584082063716515852/1441011846453792869/56046a6472d1f9836895ec2eef0d964e5450b6a9.png?ex=69203e5c&is=691eecdc&hm=25cd68fdde427e4cdb92162242b278de1f38bf201398112f713b4e7dcd442bf2&=&format=webp&quality=lossless" class="dvd-logo" id="dvd-logo">
+  </div>
+  <h1>draw cool picture below</h1>
+  <canvas id="drawing" width="400" height="400"></canvas>
+
+  <div>
+    <input type="text" id="messageInput" placeholder="type a message to me...">
+  </div>
+
+  <div id="draw-buttons">
+    <button class="btn" id="clearBtn">clear</button>
+    <button class="btn" id="sendBtn">send to me!!</button>
+  </div>
+
+<script>
+const dvd = document.getElementById('dvd-logo');
+const box = document.getElementById('dvd-box');
+let posX = 0, posY = 0;
+let velX = 0.1 + Math.random()*1;
+let velY = 0.1 + Math.random()*1;
+
+function moveDVD() {
+  const boxWidth = box.clientWidth - dvd.clientWidth;
+  const boxHeight = box.clientHeight - dvd.clientHeight;
+  posX += velX;
+  posY += velY;
+
+  if(posX <= 0 || posX >= boxWidth) velX *= -1;
+  if(posY <= 0 || posY >= boxHeight) velY *= -1;
+
+  dvd.style.left = posX + 'px';
+  dvd.style.top = posY + 'px';
+
+  requestAnimationFrame(moveDVD);
+}
+moveDVD();
+
+const canvas = document.getElementById('drawing');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+
+canvas.addEventListener('mousedown', () => drawing = true);
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseout', () => drawing = false);
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  ctx.fillStyle = 'white';
+  ctx.beginPath();
+  ctx.arc(x, y, 5, 0, Math.PI * 2);
+  ctx.fill();
+});
+
+document.getElementById('clearBtn').onclick = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
+
+document.getElementById('sendBtn').onclick = async () => {
+  const dataUrl = canvas.toDataURL('image/png');
+  const message = document.getElementById('messageInput').value;
+
+  try {
+    const response = await fetch('https://github.kevduf28.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataUrl, text: message })
+    });
+
+    const result = await response.text();
+    alert(result);
+  } catch (err) {
+    alert("error sending" + err.message);
+  }
+};
+</script>
+</body>
+</html>
