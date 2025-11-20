@@ -139,6 +139,15 @@ const canvas = document.getElementById('drawing');
 const ctx = canvas.getContext('2d');
 let drawing = false;
 
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  return {
+    x: touch.clientX - rect.left,
+    y: touch.clientY - rect.top
+  };
+}
+
 canvas.addEventListener('mousedown', () => drawing = true);
 canvas.addEventListener('mouseup', () => drawing = false);
 canvas.addEventListener('mouseout', () => drawing = false);
@@ -152,6 +161,25 @@ canvas.addEventListener('mousemove', (e) => {
   ctx.beginPath();
   ctx.arc(x, y, 5, 0, Math.PI * 2);
   ctx.fill();
+});
+
+canvas.addEventListener('touchstart', (e) => {
+  drawing = true;
+  e.preventDefault();
+});
+
+canvas.addEventListener('touchend', () => {
+  drawing = false;
+});
+
+canvas.addEventListener('touchmove', (e) => {
+  if (!drawing) return;
+  const { x, y } = getPos(e);
+  ctx.fillStyle = 'white';
+  ctx.beginPath();
+  ctx.arc(x, y, 5, 0, Math.PI * 2);
+  ctx.fill();
+  e.preventDefault();
 });
 
 document.getElementById('clearBtn').onclick = () => {
